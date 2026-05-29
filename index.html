@@ -757,15 +757,25 @@
             taskData.sort((a, b) => a.startDay - b.startDay);
 
             const sortedTasks = [...tasks].sort((a, b) => getDday(a.deadline) - getDday(b.deadline));
-            const lastTaskDate = new Date(sortedTasks[sortedTasks.length - 1].deadline);
-            const totalDays = Math.ceil((lastTaskDate - today) / (1000 * 60 * 60 * 24));
+            const lastTaskDeadline = getDday(sortedTasks[sortedTasks.length - 1].deadline);
+            const totalDays = Math.max(0, lastTaskDeadline - 1);
 
             const schedule = {};
             let rotationIndex = 0;
 
             for (let day = 0; day <= totalDays; day++) {
-                const urgentTasks = taskData.filter(t => t.dday - day <= 2 && t.dday - day >= 0 && t.workPool.length > 0);
-                const activeTasks = taskData.filter(t => t.dday - day > 2 && t.dday - day >= t.startDay && t.workPool.length > 0);
+                const urgentTasks = taskData.filter(t => 
+                    t.dday - day <= 2 && 
+                    t.dday - day >= 1 &&
+                    t.workPool.length > 0
+                );
+
+                const activeTasks = taskData.filter(t => 
+                    t.dday - day > 2 && 
+                    day >= t.startDay && 
+                    day < t.dday &&
+                    t.workPool.length > 0
+                );
 
                 let selectedTasks = [];
 
